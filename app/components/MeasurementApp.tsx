@@ -94,20 +94,21 @@ const CATEGORIES = {
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFI1L0kd5BYSSX6-y4HeWLuIXv_iFoCPsulE_Glu4TQnTSJ4_HFWoLhNfrvImG0MGZKQ/exec'
 
+{/* NumberButtonコンポーネント */}
 const NumberButton = React.memo(({ children, onClick, className = '', style = {} }) => (
     <button
       onClick={onClick}
       style={{ minHeight: '100px', minWidth: '100px', ...style }}
-      className={`text-2xl font-semibold text-gray-800 
-        bg-white rounded-2xl shadow-md flex-1
-        hover:bg-gray-50 active:bg-gray-100 active:shadow-sm transition-all
+      className={`text-2xl font-semibold text-gray-100 
+        bg-gray-800 rounded-2xl shadow-md flex-1
+        hover:bg-gray-700 active:bg-gray-600 active:shadow-sm transition-all
         flex items-center justify-center ${className}`}
     >
       {children}
     </button>
-  ))
+))
   
-  const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
+const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
     <button
       onClick={() => onClick(category)}
       style={{ 
@@ -115,14 +116,16 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
         width: '100%'
       }}
       className={`text-xl font-semibold 
-        bg-white rounded-2xl shadow-md 
+        rounded-2xl shadow-md 
         flex items-center justify-center transition-colors
-        ${selected ? 'bg-blue-500 text-white' : 'text-gray-800 hover:bg-gray-50'}
+        ${selected 
+          ? 'bg-blue-500 text-white' 
+          : 'bg-gray-800 text-gray-100 hover:bg-gray-700'}
         px-4`}
     >
       {name}
     </button>
-  ))
+))
   
   export default function MeasurementApp() {
   const [isClient, setIsClient] = useState(false)
@@ -134,6 +137,7 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
   const [showComplete, setShowComplete] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
+  const [isEditMode, setIsEditMode] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
@@ -147,6 +151,7 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
     setInputValue('')
     setShowComplete(false)
     setError('')
+    setIsEditMode(false) 
   }
 
   const handleNumberClick = (num: string) => {
@@ -185,21 +190,23 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
       setIsSaving(true)
       console.log('送信データ:', {
         category: currentCategory,
-        measurements: data
+        measurements: data,
+        isEditMode  // 編集モードフラグを追加
       });
+      
       const response = await fetch(GAS_URL, {
         method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           category: currentCategory,
-          measurements: data
+          measurements: data,
+          isEditMode  // 編集モードフラグを送信
         })
       })
 
-      if (!response.ok) throw new Error('保存に失敗しました')
-      
-      const result = await response.json()
-      if (!result.success) throw new Error(result.message || '保存に失敗しました')
-      
       return true
     } catch (error) {
       console.error('Save error:', error)
@@ -208,16 +215,40 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
     } finally {
       setIsSaving(false)
     }
-  }
+}
 
   const handleNext = async () => {
     if (!inputValue) return
 
     if (!currentCategory && !showCategorySelect) {
-      setMeasurements({ id: inputValue })
-      setShowCategorySelect(true)
-      setInputValue('')
-      return
+        // handleNext内の編集モード部分を以下のように修正
+if (isEditMode) {
+    try {
+        // handleNext内の編集モード部分で
+        console.log(`送信ID: ${inputValue}, 型: ${typeof inputValue}`);
+        console.log(`データ取得開始: ID = ${inputValue}`);
+        const response = await fetch(`${GAS_URL}?id=${inputValue}`);
+        console.log('レスポンス:', response);
+        const data = await response.json();
+        console.log('取得データ:', data);
+        
+        if (data.success && data.measurements) {
+            setMeasurements({ id: inputValue, ...data.measurements });
+        } else {
+            setError('指定されたIDのデータが見つかりませんでした');
+            return;
+        }
+    } catch (error) {
+        console.error('エラー詳細:', error);
+        setError('データの取得に失敗しました');
+        return;
+    }
+} else {
+            setMeasurements({ id: inputValue })
+        }
+        setShowCategorySelect(true)
+        setInputValue('')
+        return
     }
 
     const category = CATEGORIES[currentCategory!]
@@ -256,11 +287,11 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
 
   if (showComplete) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
         <div className="w-full max-w-sm md:max-w-xs flex flex-col h-[600px] md:h-[500px]">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-center mb-4">保存完了!</h2>
-          <p className="text-center mb-8 text-gray-600">測定値の登録が完了しました</p>
+          <h2 className="text-2xl font-bold text-center mb-4 text-gray-100">保存完了!</h2>
+          <p className="text-center mb-8 text-gray-300">測定値の登録が完了しました</p>
           <button
             onClick={resetForm}
             className="w-full bg-blue-500 text-white p-4 rounded-2xl text-lg font-semibold
@@ -271,23 +302,23 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
         </div>
       </div>
     )
-  }
+}
 
+  
   if (showCategorySelect) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="container mx-auto max-w-sm"> {/* containerクラスを追加 */}
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <div className="container mx-auto max-w-sm">
           <div className="mb-6 flex items-center">
             <button
               onClick={handleBack}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-400 hover:text-gray-200"
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-800 ml-2">カテゴリを選択</h1>
+            <h1 className="text-2xl font-bold text-gray-100 ml-2">カテゴリを選択</h1>
           </div>
-  
-          {/* display: gridをインラインスタイルで明示的に指定 */}
+          
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: 'repeat(2, 1fr)',
@@ -307,10 +338,12 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
         </div>
       </div>
     );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+}
+  
+  {/* メインのreturn */}
+    return (
+        <div 
+          className="min-h-screen flex items-center justify-center p-4">
       <div style={{ 
         width: '100%',
         maxWidth: '360px',
@@ -318,35 +351,35 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
       }}>
         {/* ヘッダー */}
         <div className="mb-4 flex items-center justify-between">
-          {currentStepIndex > 0 && (
-            <button
-              onClick={handleBack}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-          )}
-          <h1 className="text-xl font-bold text-gray-800 flex-grow text-center">
+          <h1 className="text-xl font-bold text-gray-100 flex-grow text-center">
             {currentCategory ? CATEGORIES[currentCategory].name : '新規登録'}
           </h1>
-          {currentCategory && (
-            <span className="text-gray-600 font-medium">
-              {currentStepIndex + 1} / {CATEGORIES[currentCategory].steps.length}
-            </span>
-          )}
         </div>
-  
+
+        {/* 編集モード切り替えボタン（IDの入力画面の時のみ表示） */}
+        {!currentCategory && !showCategorySelect && (
+          <button
+            onClick={() => setIsEditMode(!isEditMode)}
+            className={`mb-4 w-full p-3 rounded-xl text-sm font-medium transition-colors
+              ${isEditMode 
+                ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+          >
+            {isEditMode ? '編集モード：ON' : '編集モード：OFF'}
+          </button>
+        )}
+
         {/* エラーメッセージ */}
         {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-2xl">
+          <div className="mb-4 p-4 bg-red-900/50 text-red-200 rounded-2xl">
             {error}
           </div>
         )}
-  
+
         {/* 入力表示エリア */}
-        <div className="mb-4 p-4 bg-white rounded-3xl shadow-lg">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">{currentStep?.label}</h2>
-          <div className="text-4xl md:text-5xl font-mono h-16 flex items-center justify-end text-gray-800">
+        <div className="mb-4 p-4 bg-gray-800 rounded-3xl shadow-lg">
+          <h2 className="text-xl font-bold text-gray-100 mb-2">{currentStep?.label}</h2>
+          <div className="text-4xl md:text-5xl font-mono h-16 flex items-center justify-end text-gray-100">
             {inputValue}{currentStep?.unit}
           </div>
         </div>
@@ -374,17 +407,17 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
           {/* 4行目: 0,←,次へ */}
           <div className="flex-1 flex gap-3">
             <NumberButton onClick={() => handleNumberClick('0')}>0</NumberButton>
-            <NumberButton onClick={handleDelete} className="bg-gray-100">←</NumberButton>
+            <NumberButton onClick={handleDelete} className="bg-gray-700">←</NumberButton>
             <button
-              onClick={handleNext}
-              disabled={!inputValue || isSaving}
-              style={{ height: '100px', minWidth: '100px' }}
-              className="flex-1 bg-blue-500 text-white text-xl font-semibold
-                     rounded-2xl flex items-center justify-center gap-2 
-                     disabled:bg-gray-300 disabled:cursor-not-allowed
-                     hover:bg-blue-600 active:bg-blue-700 transition-colors"
-            >
-              {isSaving ? '...' : '次へ'}
+  onClick={handleNext}
+  disabled={!inputValue || isSaving}
+  style={{ height: '100px', minWidth: '100px' }}
+  className="flex-1 bg-blue-900 text-white text-xl font-semibold
+           rounded-2xl flex items-center justify-center gap-2 
+           disabled:bg-gray-700 disabled:cursor-not-allowed
+           hover:bg-blue-800 active:bg-blue-700 transition-colors"
+>
+  {isSaving ? '...' : '次へ'}
             </button>
           </div>
         </div>

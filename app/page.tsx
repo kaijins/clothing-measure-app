@@ -19,5 +19,6 @@ export default function Page() {
     }
   }, []);
 
+  // divとSuspenseを削除し、直接コンポーネントを返す
   return <MeasurementApp />
 }

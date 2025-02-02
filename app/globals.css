@@ -1,34 +1,10 @@
-Copy@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-/* グリッドレイアウトの基本設定 */
-.grid {
-  display: grid;
-  grid-auto-rows: 1fr;
-}
-
-/* コンテナの基本設定 */
-.container {
-  width: 100%;
-  max-width: 24rem;
-  margin: 0 auto;
+/* 全てのスタイルを一旦リセット */
+html, body {
+  @apply bg-gray-900 text-gray-100;
+  margin: 0;
+  padding: 0;
 }

@@ -1,10 +1,12 @@
+import './globals.css'  // この行が必要です
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="ja" suppressHydrationWarning>
+    <html lang="ja" suppressHydrationWarning className="bg-gray-900">
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#3b82f6" />
@@ -12,10 +14,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body suppressHydrationWarning className="bg-gray-50 antialiased flex flex-col min-h-screen">
-        <main className="min-h-screen flex flex-col items-center">
-          {children}
-        </main>
+      <body suppressHydrationWarning className="bg-gray-900">
+        {children}
       </body>
     </html>
   )
