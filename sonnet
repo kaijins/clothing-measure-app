@@ -94,37 +94,32 @@ const CATEGORIES = {
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFI1L0kd5BYSSX6-y4HeWLuIXv_iFoCPsulE_Glu4TQnTSJ4_HFWoLhNfrvImG0MGZKQ/exec'
 
-const NumberButton = React.memo(({ children, onClick, className = '', style = {} }) => (
+const NumberButton = React.memo(({ children, onClick, className = '' }) => (
     <button
       onClick={onClick}
-      style={{ minHeight: '100px', minWidth: '100px', ...style }}
-      className={`text-2xl font-semibold text-gray-800 
-        bg-white rounded-2xl shadow-md flex-1
+      className={`flex-1 aspect-square text-2xl font-semibold text-gray-800 
+        bg-white rounded-2xl shadow-md 
         hover:bg-gray-50 active:bg-gray-100 active:shadow-sm transition-all
         flex items-center justify-center ${className}`}
     >
       {children}
     </button>
   ))
-  
-  const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
+
+function CategoryButton({ category, name, onClick, selected }) {
+  return (
     <button
       onClick={() => onClick(category)}
-      style={{ 
-        height: '64px',
-        width: '100%'
-      }}
-      className={`text-xl font-semibold 
-        bg-white rounded-2xl shadow-md 
-        flex items-center justify-center transition-colors
-        ${selected ? 'bg-blue-500 text-white' : 'text-gray-800 hover:bg-gray-50'}
-        px-4`}
+      className={`w-full p-4 rounded-2xl text-lg font-semibold mb-2
+      flex items-center justify-center gap-2 transition-colors
+      ${selected ? 'bg-blue-500 text-white' : 'bg-white text-gray-800 hover:bg-gray-50'}`}
     >
       {name}
     </button>
-  ))
-  
-  export default function MeasurementApp() {
+  )
+}
+
+export default function MeasurementApp() {
   const [isClient, setIsClient] = useState(false)
   const [currentCategory, setCurrentCategory] = useState<string | null>(null)
   const [showCategorySelect, setShowCategorySelect] = useState(false)
@@ -276,24 +271,17 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
   if (showCategorySelect) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="container mx-auto max-w-sm"> {/* containerクラスを追加 */}
-          <div className="mb-6 flex items-center">
+        <div className="w-full max-w-sm md:max-w-xs">
+          <div className="mb-4 flex items-center">
             <button
               onClick={handleBack}
               className="text-gray-600 hover:text-gray-800"
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-800 ml-2">カテゴリを選択</h1>
+            <h1 className="text-xl font-bold text-gray-800 ml-2">カテゴリを選択</h1>
           </div>
-  
-          {/* display: gridをインラインスタイルで明示的に指定 */}
-          <div style={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '12px',
-            width: '100%'
-          }}>
+          <div className="space-y-2">
             {Object.entries(CATEGORIES).map(([key, value]) => (
               <CategoryButton
                 key={key}
@@ -306,18 +294,14 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div style={{ 
-        width: '100%',
-        maxWidth: '360px',
-        margin: '0 auto'
-      }}>
+    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+      <div className="w-full max-w-md flex flex-col h-[600px]">  {/* max-wとhを修正 */}
         {/* ヘッダー */}
-        <div className="mb-4 flex items-center justify-between">
+        <div className="h-16 flex items-center justify-between">  {/* 固定高さ追加 */}
           {currentStepIndex > 0 && (
             <button
               onClick={handleBack}
@@ -335,54 +319,53 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
             </span>
           )}
         </div>
-  
+
         {/* エラーメッセージ */}
         {error && (
-          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-2xl">
+          <div className="h-16 p-4 bg-red-100 text-red-700 rounded-2xl mb-2">  {/* 高さ追加 */}
             {error}
           </div>
         )}
-  
+
         {/* 入力表示エリア */}
-        <div className="mb-4 p-4 bg-white rounded-3xl shadow-lg">
+        <div className="h-24 p-4 bg-white rounded-3xl shadow-lg mb-4">  {/* 高さ修正 */}
           <h2 className="text-xl font-bold text-gray-800 mb-2">{currentStep?.label}</h2>
-          <div className="text-4xl md:text-5xl font-mono h-16 flex items-center justify-end text-gray-800">
+          <div className="text-4xl font-mono flex items-center justify-end text-gray-800">
             {inputValue}{currentStep?.unit}
           </div>
         </div>
-  
-        {/* テンキーエリア */}
-        <div className="flex-1 flex flex-col gap-3" style={{ minHeight: '400px' }}>
+
+        {/* テンキーエリア全体 */}
+        <div className="flex-1 flex flex-col gap-4">
           {/* 1行目: 7,8,9 */}
-          <div className="flex-1 flex gap-3">
+          <div className="flex-1 flex gap-4">
             <NumberButton onClick={() => handleNumberClick('7')}>7</NumberButton>
             <NumberButton onClick={() => handleNumberClick('8')}>8</NumberButton>
             <NumberButton onClick={() => handleNumberClick('9')}>9</NumberButton>
           </div>
           {/* 2行目: 4,5,6 */}
-          <div className="flex-1 flex gap-3">
+          <div className="flex-1 flex gap-4">
             <NumberButton onClick={() => handleNumberClick('4')}>4</NumberButton>
             <NumberButton onClick={() => handleNumberClick('5')}>5</NumberButton>
             <NumberButton onClick={() => handleNumberClick('6')}>6</NumberButton>
           </div>
           {/* 3行目: 1,2,3 */}
-          <div className="flex-1 flex gap-3">
+          <div className="flex-1 flex gap-4">
             <NumberButton onClick={() => handleNumberClick('1')}>1</NumberButton>
             <NumberButton onClick={() => handleNumberClick('2')}>2</NumberButton>
             <NumberButton onClick={() => handleNumberClick('3')}>3</NumberButton>
           </div>
           {/* 4行目: 0,←,次へ */}
-          <div className="flex-1 flex gap-3">
+          <div className="flex-1 flex gap-4">
             <NumberButton onClick={() => handleNumberClick('0')}>0</NumberButton>
             <NumberButton onClick={handleDelete} className="bg-gray-100">←</NumberButton>
             <button
               onClick={handleNext}
               disabled={!inputValue || isSaving}
-              style={{ height: '100px', minWidth: '100px' }}
               className="flex-1 bg-blue-500 text-white text-xl font-semibold
-                     rounded-2xl flex items-center justify-center gap-2 
-                     disabled:bg-gray-300 disabled:cursor-not-allowed
-                     hover:bg-blue-600 active:bg-blue-700 transition-colors"
+                       rounded-2xl flex items-center justify-center gap-2 
+                       disabled:bg-gray-300 disabled:cursor-not-allowed
+                       hover:bg-blue-600 active:bg-blue-700 transition-colors"
             >
               {isSaving ? '...' : '次へ'}
             </button>

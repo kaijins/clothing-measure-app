@@ -12,8 +12,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body suppressHydrationWarning className="bg-gray-50 antialiased">
-        <main className="min-h-screen">
+      <body suppressHydrationWarning className="bg-gray-50 antialiased flex flex-col min-h-screen">
+        <main className="min-h-screen flex flex-col items-center">
           {children}
         </main>
       </body>
