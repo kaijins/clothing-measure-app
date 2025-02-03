@@ -3,11 +3,47 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { ChevronRight, RotateCcw, Save, CheckCircle, ArrowLeft } from 'lucide-react'
 
+const SizeSelector = React.memo(({ onSelect, selectedSize }) => (
+  <div className="flex flex-col gap-3">
+    <div className="grid grid-cols-2 gap-3">
+      {/* 2列×5行のグリッドに直接配置 */}
+      {[
+        'XXS以下', '4XL以上',
+        'XS', '3XL',
+        'S', '2XL',
+        'M', 'XL',
+        'FREE', 'L'
+      ].map((size) => (
+        <button
+          key={size}
+          onClick={() => onSelect(size)}
+          className={`w-full bg-gray-800 text-gray-100 p-4 rounded-xl 
+                   hover:bg-gray-700 transition-colors text-center
+                   ${selectedSize === size ? 'ring-2 ring-blue-500' : ''}`}
+        >
+          {size}
+        </button>
+      ))}
+    </div>
+    <button
+      onClick={() => onSelect(selectedSize)}
+      disabled={!selectedSize}
+      className="w-full bg-blue-900 text-white p-4 rounded-2xl text-lg 
+                font-semibold mt-4 hover:bg-blue-800 active:bg-blue-700 
+                transition-colors disabled:bg-gray-700 
+                disabled:cursor-not-allowed"
+    >
+      次へ
+    </button>
+  </div>
+));
+
 const CATEGORIES = {
     TS: {
       name: 'トップス（半袖）',
       steps: [
         { label: 'No', key: 'id' },
+        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
@@ -19,6 +55,7 @@ const CATEGORIES = {
       name: 'トップス（長袖）',
       steps: [
         { label: 'No', key: 'id' },
+        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
@@ -30,6 +67,7 @@ const CATEGORIES = {
       name: 'ジャケット',
       steps: [
         { label: 'No', key: 'id' },
+        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
@@ -41,6 +79,7 @@ const CATEGORIES = {
       name: 'パンツ',
       steps: [
         { label: 'No', key: 'id' },
+        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
         { label: 'ウエスト', key: 'waist', unit: 'cm' },
         { label: '股上', key: 'rise', unit: 'cm' },
         { label: '股下', key: 'inseam', unit: 'cm' },
@@ -53,6 +92,7 @@ const CATEGORIES = {
       name: 'スカート',
       steps: [
         { label: 'No', key: 'id' },
+        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
         { label: 'ウエスト', key: 'waist', unit: 'cm' },
         { label: 'スカート丈', key: 'skirtLength', unit: 'cm' },
         { label: '脇丈', key: 'totalLength', unit: 'cm' }
@@ -62,6 +102,7 @@ const CATEGORIES = {
       name: 'ワンピース',
       steps: [
         { label: 'No', key: 'id' },
+        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: 'バスト', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
@@ -72,6 +113,7 @@ const CATEGORIES = {
       name: 'セットアップ',
       steps: [
         { label: 'No', key: 'id' },
+        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
@@ -94,7 +136,6 @@ const CATEGORIES = {
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFI1L0kd5BYSSX6-y4HeWLuIXv_iFoCPsulE_Glu4TQnTSJ4_HFWoLhNfrvImG0MGZKQ/exec'
 
-{/* NumberButtonコンポーネント */}
 const NumberButton = React.memo(({ children, onClick, className = '', style = {} }) => (
     <button
       onClick={onClick}
@@ -106,7 +147,7 @@ const NumberButton = React.memo(({ children, onClick, className = '', style = {}
     >
       {children}
     </button>
-))
+));
   
 const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
     <button
@@ -125,7 +166,7 @@ const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
     >
       {name}
     </button>
-))
+));
   
   export default function MeasurementApp() {
   const [isClient, setIsClient] = useState(false)
@@ -339,16 +380,14 @@ if (isEditMode) {
       </div>
     );
 }
-  
-  {/* メインのreturn */}
-    return (
-        <div 
-          className="min-h-screen flex items-center justify-center p-4">
-      <div style={{ 
-        width: '100%',
-        maxWidth: '360px',
-        margin: '0 auto'
-      }}>
+
+return (
+  <div className="min-h-screen flex items-center justify-center p-4">
+    <div style={{ 
+      width: '100%',
+      maxWidth: '360px',
+      margin: '0 auto'
+    }}>
         {/* ヘッダー */}
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-100 flex-grow text-center">
@@ -385,42 +424,48 @@ if (isEditMode) {
         </div>
   
         {/* テンキーエリア */}
-        <div className="flex-1 flex flex-col gap-3" style={{ minHeight: '400px' }}>
-          {/* 1行目: 7,8,9 */}
-          <div className="flex-1 flex gap-3">
-            <NumberButton onClick={() => handleNumberClick('7')}>7</NumberButton>
-            <NumberButton onClick={() => handleNumberClick('8')}>8</NumberButton>
-            <NumberButton onClick={() => handleNumberClick('9')}>9</NumberButton>
+        {currentStep?.type === 'select' ? (
+  <SizeSelector 
+    onSelect={(size) => {
+      setInputValue(size);
+      handleNext();
+    }}
+    selectedSize={inputValue}  // inputValueを渡す
+  />
+) : (
+          <div className="flex-1 flex flex-col gap-3" style={{ minHeight: '400px' }}>
+            <div className="flex-1 flex gap-3">
+              <NumberButton onClick={() => handleNumberClick('7')}>7</NumberButton>
+              <NumberButton onClick={() => handleNumberClick('8')}>8</NumberButton>
+              <NumberButton onClick={() => handleNumberClick('9')}>9</NumberButton>
+            </div>
+            <div className="flex-1 flex gap-3">
+              <NumberButton onClick={() => handleNumberClick('4')}>4</NumberButton>
+              <NumberButton onClick={() => handleNumberClick('5')}>5</NumberButton>
+              <NumberButton onClick={() => handleNumberClick('6')}>6</NumberButton>
+            </div>
+            <div className="flex-1 flex gap-3">
+              <NumberButton onClick={() => handleNumberClick('1')}>1</NumberButton>
+              <NumberButton onClick={() => handleNumberClick('2')}>2</NumberButton>
+              <NumberButton onClick={() => handleNumberClick('3')}>3</NumberButton>
+            </div>
+            <div className="flex-1 flex gap-3">
+              <NumberButton onClick={() => handleNumberClick('0')}>0</NumberButton>
+              <NumberButton onClick={handleDelete} className="bg-gray-700">←</NumberButton>
+              <button
+                onClick={handleNext}
+                disabled={!inputValue || isSaving}
+                style={{ height: '100px', minWidth: '100px' }}
+                className="flex-1 bg-blue-900 text-white text-xl font-semibold
+                         rounded-2xl flex items-center justify-center gap-2 
+                         disabled:bg-gray-700 disabled:cursor-not-allowed
+                         hover:bg-blue-800 active:bg-blue-700 transition-colors"
+              >
+                {isSaving ? '...' : '次へ'}
+              </button>
+            </div>
           </div>
-          {/* 2行目: 4,5,6 */}
-          <div className="flex-1 flex gap-3">
-            <NumberButton onClick={() => handleNumberClick('4')}>4</NumberButton>
-            <NumberButton onClick={() => handleNumberClick('5')}>5</NumberButton>
-            <NumberButton onClick={() => handleNumberClick('6')}>6</NumberButton>
-          </div>
-          {/* 3行目: 1,2,3 */}
-          <div className="flex-1 flex gap-3">
-            <NumberButton onClick={() => handleNumberClick('1')}>1</NumberButton>
-            <NumberButton onClick={() => handleNumberClick('2')}>2</NumberButton>
-            <NumberButton onClick={() => handleNumberClick('3')}>3</NumberButton>
-          </div>
-          {/* 4行目: 0,←,次へ */}
-          <div className="flex-1 flex gap-3">
-            <NumberButton onClick={() => handleNumberClick('0')}>0</NumberButton>
-            <NumberButton onClick={handleDelete} className="bg-gray-700">←</NumberButton>
-            <button
-  onClick={handleNext}
-  disabled={!inputValue || isSaving}
-  style={{ height: '100px', minWidth: '100px' }}
-  className="flex-1 bg-blue-900 text-white text-xl font-semibold
-           rounded-2xl flex items-center justify-center gap-2 
-           disabled:bg-gray-700 disabled:cursor-not-allowed
-           hover:bg-blue-800 active:bg-blue-700 transition-colors"
->
-  {isSaving ? '...' : '次へ'}
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
