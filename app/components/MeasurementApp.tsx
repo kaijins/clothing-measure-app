@@ -43,19 +43,19 @@ const CATEGORIES = {
       name: 'トップス（半袖）',
       steps: [
         { label: 'No', key: 'id' },
-        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
+        { label: '商品サイズ', key: 'size', type: 'select', optional: true },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' },
-        { label: '袖丈', key: 'sleeveLength', unit: 'cm' }
+        { label: '袖丈', key: 'sleeveLength', unit: 'cm' ,optional: true  }
       ]
     },
     TL: {
       name: 'トップス（長袖）',
       steps: [
         { label: 'No', key: 'id' },
-        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
+        { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
@@ -67,23 +67,23 @@ const CATEGORIES = {
       name: 'ジャケット',
       steps: [
         { label: 'No', key: 'id' },
-        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
+        { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' },
-        { label: '袖丈', key: 'sleeveLength', unit: 'cm' }
+        { label: '袖丈', key: 'sleeveLength', unit: 'cm' ,optional: true  }
       ]
     },
     PT: {
       name: 'パンツ',
       steps: [
         { label: 'No', key: 'id' },
-        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
+        { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: 'ウエスト', key: 'waist', unit: 'cm' },
         { label: '股上', key: 'rise', unit: 'cm' },
         { label: '股下', key: 'inseam', unit: 'cm' },
-        { label: '総丈', key: 'totalLength', unit: 'cm' },
+        { label: '総丈', key: 'totalLength', unit: 'cm' ,optional: true  },
         { label: 'わたり幅', key: 'thighWidth', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' }
       ]
@@ -92,7 +92,7 @@ const CATEGORIES = {
       name: 'スカート',
       steps: [
         { label: 'No', key: 'id' },
-        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
+        { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: 'ウエスト', key: 'waist', unit: 'cm' },
         { label: 'スカート丈', key: 'skirtLength', unit: 'cm' },
         { label: '脇丈', key: 'totalLength', unit: 'cm' }
@@ -102,23 +102,23 @@ const CATEGORIES = {
       name: 'ワンピース',
       steps: [
         { label: 'No', key: 'id' },
-        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
+        { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: 'バスト', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
-        { label: '袖丈', key: 'sleeveLength', unit: 'cm' }
+        { label: '袖丈', key: 'sleeveLength', unit: 'cm' ,optional: true  }
       ]
     },
     SET: {
       name: 'セットアップ',
       steps: [
         { label: 'No', key: 'id' },
-        { label: '商品サイズ', key: 'size', type: 'select' },  // typeを追加
+        { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
         { label: '着丈', key: 'length', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' },
-        { label: '袖丈', key: 'sleeveLength', unit: 'cm' },
+        { label: '袖丈', key: 'sleeveLength', unit: 'cm' ,optional: true  },
         { label: 'ボトムスウエスト', key: 'waist', unit: 'cm' },
         { label: 'ボトムス総丈', key: 'totalLength', unit: 'cm' }
       ]
@@ -167,6 +167,49 @@ const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
       {name}
     </button>
 ));
+
+// === BreadcrumbNavコンポーネント ===
+const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCategory }) => {
+  const measurementSteps = steps.slice(2);  // 計測値のみ（Noとサイズを除外）
+
+  return (
+    <div className="space-y-2 mb-2">
+      {/* タイトルとNo */}
+      <div className="flex justify-center items-center gap-2 text-gray-100">
+        <h1 className="text-xl font-bold">
+          {CATEGORIES[currentCategory].name}
+        </h1>
+        <span className="text-sm">
+          No.{measurements.id}
+        </span>
+      </div>
+
+      {/* 計測値セクション */}
+      <div className="flex justify-center flex-wrap gap-x-2 gap-y-1 text-sm text-gray-500">
+        {measurementSteps.map((step, index) => (
+          <React.Fragment key={step.key}>
+            <button
+              onClick={() => onStepClick(index + 2)}
+              className={`hover:text-gray-300 flex flex-col items-center ${
+                index + 2 === currentIndex 
+                  ? 'text-gray-200' 
+                  : measurements[step.key] && measurements[step.key] !== '0'
+                    ? 'text-blue-400'
+                    : ''
+              }`}
+            >
+              <span className="text-xs">{step.label}</span>
+              {measurements[step.key] && measurements[step.key] !== '0' && (
+                <span>{measurements[step.key]}</span>
+              )}
+            </button>
+            {index < measurementSteps.length - 1 && <span>-</span>}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+});
   
   export default function MeasurementApp() {
   const [isClient, setIsClient] = useState(false)
@@ -258,10 +301,10 @@ const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
     }
 }
 
-  const handleNext = async () => {
-    if (!inputValue) return
+const handleNext = async () => {
+  if (!inputValue && !currentCategory && !showCategorySelect) return;
 
-    if (!currentCategory && !showCategorySelect) {
+  if (!currentCategory && !showCategorySelect) {
         // handleNext内の編集モード部分を以下のように修正
 if (isEditMode) {
     try {
@@ -292,12 +335,29 @@ if (isEditMode) {
         return
     }
 
-    const category = CATEGORIES[currentCategory!]
-    const currentStep = category.steps[currentStepIndex]
+    const category = CATEGORIES[currentCategory!];
+    const currentStep = category.steps[currentStepIndex];
     
+    // スキップ処理を修正
+    if (currentStep && currentStep.optional && !inputValue) {
+      // 最終項目の場合は保存処理へ
+      if (currentStepIndex === category.steps.length - 1) {
+        const success = await saveToSpreadsheet(measurements);
+        if (success) {
+          setShowComplete(true);
+        }
+        return;
+      }
+      // それ以外は次のステップへ
+      setCurrentStepIndex(prev => prev + 1);
+      setInputValue('');
+      return;
+    }
+
+  
     const updatedMeasurements = {
       ...measurements,
-      [currentStep.key]: inputValue
+      [currentStep.key]: inputValue || ''  // 空文字も許可
     }
     setMeasurements(updatedMeasurements)
 
@@ -329,21 +389,46 @@ if (isEditMode) {
   if (showComplete) {
     return (
       <div className="min-h-screen bg-gray-900 p-4 flex items-center justify-center">
-        <div className="w-full max-w-sm md:max-w-xs flex flex-col h-[600px] md:h-[500px]">
+        <div className="w-full max-w-sm md:max-w-xs flex flex-col">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-center mb-4 text-gray-100">保存完了!</h2>
-          <p className="text-center mb-8 text-gray-300">測定値の登録が完了しました</p>
-          <button
-            onClick={resetForm}
-            className="w-full bg-blue-500 text-white p-4 rounded-2xl text-lg font-semibold
-                     hover:bg-blue-600 active:bg-blue-700 transition-colors"
-          >
-            新規入力を開始
-          </button>
+          <h2 className="text-2xl font-bold text-center mb-4 text-gray-100">
+            {CATEGORIES[currentCategory].name} No.{measurements.id}
+          </h2>
+          
+          {/* 入力データの表示（Noを除外） */}
+          <div className="bg-gray-800 rounded-xl p-4 mb-6">
+            {CATEGORIES[currentCategory].steps.slice(1).map((step, index) => (  // slice(1)でNoを除外
+              <div key={step.key} className="text-gray-100 mb-1 flex justify-between">
+                <span>{step.label}:</span>
+                <span>{measurements[step.key]}{step.unit || ''}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setIsEditMode(true);
+                setShowComplete(false);
+                setCurrentStepIndex(1);  // サイズ選択から開始
+              }}
+              className="flex-1 bg-blue-900 text-white p-4 rounded-2xl text-lg font-semibold
+                       hover:bg-blue-800 active:bg-blue-700 transition-colors"
+            >
+              修正する
+            </button>
+            <button
+              onClick={resetForm}
+              className="flex-1 bg-gray-700 text-white p-4 rounded-2xl text-lg font-semibold
+                       hover:bg-gray-600 active:bg-gray-500 transition-colors"
+            >
+              新規入力
+            </button>
+          </div>
         </div>
       </div>
-    )
-}
+    );
+  }
 
   
   if (showCategorySelect) {
@@ -389,11 +474,29 @@ return (
       margin: '0 auto'
     }}>
         {/* ヘッダー */}
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-100 flex-grow text-center">
-            {currentCategory ? CATEGORIES[currentCategory].name : '新規登録'}
-          </h1>
-        </div>
+{/* ヘッダー */}
+<div className="mb-4">
+  {currentCategory && (  // カテゴリが選択されている時のみ表示
+    <BreadcrumbNav
+      steps={CATEGORIES[currentCategory].steps}
+      currentIndex={currentStepIndex}
+      measurements={measurements}
+      currentCategory={currentCategory}
+      onStepClick={(index) => {
+        const targetStep = CATEGORIES[currentCategory].steps[index];
+        if (index <= currentStepIndex || targetStep.optional) {
+          setCurrentStepIndex(index);
+          setInputValue(measurements[targetStep.key] || '');
+        }
+      }}
+    />
+  )}
+  {!currentCategory && (  // カテゴリ選択前は従来通りの表示
+    <h1 className="text-xl font-bold text-gray-100 text-center">
+      新規登録
+    </h1>
+  )}
+</div>
 
         {/* 編集モード切り替えボタン（IDの入力画面の時のみ表示） */}
         {!currentCategory && !showCategorySelect && (
