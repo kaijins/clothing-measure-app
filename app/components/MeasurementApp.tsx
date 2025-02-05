@@ -6,7 +6,6 @@ import { ChevronRight, RotateCcw, Save, CheckCircle, ArrowLeft } from 'lucide-re
 const SizeSelector = React.memo(({ onSelect, selectedSize }) => (
   <div className="flex flex-col gap-3">
     <div className="grid grid-cols-2 gap-3">
-      {/* 2列×5行のグリッドに直接配置 */}
       {[
         'XXS以下', '4XL以上',
         'XS', '3XL',
@@ -15,26 +14,16 @@ const SizeSelector = React.memo(({ onSelect, selectedSize }) => (
         'FREE', 'L'
       ].map((size) => (
         <button
-          key={size}
-          onClick={() => onSelect(size)}
-          className={`w-full bg-gray-800 text-gray-100 p-4 rounded-xl 
-                   hover:bg-gray-700 transition-colors text-center
-                   ${selectedSize === size ? 'ring-2 ring-blue-500' : ''}`}
-        >
-          {size}
-        </button>
+        key={size}
+        onClick={() => onSelect(size)}
+        className={`w-full bg-gray-800 text-gray-100 p-4 rounded-xl 
+                 hover:bg-gray-700 transition-colors text-center
+                 ${selectedSize === size ? 'ring-2 ring-blue-500' : ''}`}
+      >
+        {size}
+      </button>
       ))}
     </div>
-    <button
-      onClick={() => onSelect(selectedSize)}
-      disabled={!selectedSize}
-      className="w-full bg-blue-900 text-white p-4 rounded-2xl text-lg 
-                font-semibold mt-4 hover:bg-blue-800 active:bg-blue-700 
-                transition-colors disabled:bg-gray-700 
-                disabled:cursor-not-allowed"
-    >
-      次へ
-    </button>
   </div>
 ));
 
@@ -169,8 +158,13 @@ const CategoryButton = React.memo(({ category, name, onClick, selected }) => (
 ));
 
 // === BreadcrumbNavコンポーネント ===
-const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCategory }) => {
-  const measurementSteps = steps.slice(2);  // 計測値のみ（Noとサイズを除外）
+const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCategory, onStepClick }) => {
+  const measurementSteps = steps.slice(2).map(step => ({
+    ...step,
+    displayValue: step.type === 'select' ? measurements[step.key] : 
+                  measurements[step.key] && measurements[step.key] !== '0' ? 
+                  measurements[step.key] : null
+  }));
 
   return (
     <div className="space-y-2 mb-2">
@@ -189,20 +183,20 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
         {measurementSteps.map((step, index) => (
           <React.Fragment key={step.key}>
             <button
-              onClick={() => onStepClick(index + 2)}
-              className={`hover:text-gray-300 flex flex-col items-center ${
-                index + 2 === currentIndex 
-                  ? 'text-gray-200' 
-                  : measurements[step.key] && measurements[step.key] !== '0'
-                    ? 'text-blue-400'
-                    : ''
-              }`}
-            >
-              <span className="text-xs">{step.label}</span>
-              {measurements[step.key] && measurements[step.key] !== '0' && (
-                <span>{measurements[step.key]}</span>
-              )}
-            </button>
+            onClick={() => onStepClick(index + 2)}
+            className={`hover:text-gray-300 flex flex-col items-center ${
+              index + 2 === currentIndex 
+                ? 'text-gray-200' 
+                : measurements[step.key]  // 数値チェックを削除
+                  ? 'text-blue-400'
+                  : ''
+            }`}
+          >
+            <span className="text-xs">{step.label}</span>
+            {measurements[step.key] && (  // 同様に数値チェックを削除
+              <span>{measurements[step.key]}</span>
+            )}
+          </button>
             {index < measurementSteps.length - 1 && <span>-</span>}
           </React.Fragment>
         ))}
@@ -239,10 +233,11 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
   }
 
   const handleNumberClick = (num: string) => {
+    if (inputValue === '0') return;  // 先頭の0を禁止
     if (inputValue.length < 3) {
-      setInputValue(prev => prev + num)
+      setInputValue(prev => prev + num);
     }
-  }
+  };
 
   const handleDelete = () => {
     setInputValue(prev => prev.slice(0, -1))
@@ -271,11 +266,11 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
 
   const saveToSpreadsheet = async (data: any) => {
     try {
-      setIsSaving(true)
-      console.log('送信データ:', {
+      setIsSaving(true);
+      console.log('Saving data:', {  // デバッグ用
         category: currentCategory,
         measurements: data,
-        isEditMode  // 編集モードフラグを追加
+        isEditMode
       });
       
       const response = await fetch(GAS_URL, {
@@ -287,24 +282,31 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
         body: JSON.stringify({
           category: currentCategory,
           measurements: data,
-          isEditMode  // 編集モードフラグを送信
+          isEditMode
         })
-      })
-
-      return true
+      });
+  
+      return true;
     } catch (error) {
-      console.error('Save error:', error)
-      setError(error.message || '保存に失敗しました')
-      return false
+      console.error('Save error:', error);
+      setError(error.message || '保存に失敗しました');
+      return false;
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-}
+  };
 
-const handleNext = async () => {
-  if (!inputValue && !currentCategory && !showCategorySelect) return;
-
-  if (!currentCategory && !showCategorySelect) {
+  const handleNext = async () => {
+    if (!inputValue && !currentCategory && !showCategorySelect) return;
+  
+    console.log('handleNext called with:', {  // 追加
+      inputValue,
+      currentCategory,
+      currentStepIndex,
+      currentStep: CATEGORIES[currentCategory!]?.steps[currentStepIndex]
+    });
+  
+    if (!currentCategory && !showCategorySelect) {
         // handleNext内の編集モード部分を以下のように修正
 if (isEditMode) {
     try {
@@ -338,39 +340,49 @@ if (isEditMode) {
     const category = CATEGORIES[currentCategory!];
     const currentStep = category.steps[currentStepIndex];
     
-    // スキップ処理を修正
-    if (currentStep && currentStep.optional && !inputValue) {
-      // 最終項目の場合は保存処理へ
+    if (currentStep?.type === 'select') {
+      console.log('Size step detected:', {  // 追加
+        step: currentStep,
+        inputValue,
+        measurements
+      });
+    
+      const updatedMeasurements = {
+        ...measurements,
+        size: inputValue
+      };
+      console.log('Updated measurements with size:', updatedMeasurements);  // デバッグ用
+      setMeasurements(updatedMeasurements);
+  
       if (currentStepIndex === category.steps.length - 1) {
-        const success = await saveToSpreadsheet(measurements);
+        const success = await saveToSpreadsheet(updatedMeasurements);
         if (success) {
           setShowComplete(true);
         }
-        return;
+      } else {
+        setCurrentStepIndex(prev => prev + 1);
+        setInputValue('');
       }
-      // それ以外は次のステップへ
-      setCurrentStepIndex(prev => prev + 1);
-      setInputValue('');
       return;
     }
-
   
+    // 通常の計測値の処理
     const updatedMeasurements = {
       ...measurements,
-      [currentStep.key]: inputValue || ''  // 空文字も許可
-    }
-    setMeasurements(updatedMeasurements)
-
+      [currentStep.key]: inputValue
+    };
+    setMeasurements(updatedMeasurements);
+  
     if (currentStepIndex < category.steps.length - 1) {
-      setCurrentStepIndex(prev => prev + 1)
-      setInputValue('')
+      setCurrentStepIndex(prev => prev + 1);
+      setInputValue('');
     } else {
-      const success = await saveToSpreadsheet(updatedMeasurements)
+      const success = await saveToSpreadsheet(updatedMeasurements);
       if (success) {
-        setShowComplete(true)
+        setShowComplete(true);
       }
     }
-  }
+  };
 
   const getCurrentStep = () => {
     if (!currentCategory) {
@@ -410,7 +422,11 @@ if (isEditMode) {
               onClick={() => {
                 setIsEditMode(true);
                 setShowComplete(false);
-                setCurrentStepIndex(1);  // サイズ選択から開始
+                setCurrentStepIndex(1);
+                setInputValue('');  // inputValueをリセット
+                const updatedMeasurements = { ...measurements };
+                delete updatedMeasurements.size;
+                setMeasurements(updatedMeasurements);
               }}
               className="flex-1 bg-blue-900 text-white p-4 rounded-2xl text-lg font-semibold
                        hover:bg-blue-800 active:bg-blue-700 transition-colors"
@@ -530,10 +546,15 @@ return (
         {currentStep?.type === 'select' ? (
   <SizeSelector 
     onSelect={(size) => {
-      setInputValue(size);
-      handleNext();
+      const updatedMeasurements = {
+        ...measurements,
+        size: size
+      };
+      setMeasurements(updatedMeasurements);
+      setCurrentStepIndex(prev => prev + 1);
+      setInputValue('');  // 次の入力のために空にする
     }}
-    selectedSize={inputValue}  // inputValueを渡す
+    selectedSize={inputValue}
   />
 ) : (
           <div className="flex-1 flex flex-col gap-3" style={{ minHeight: '400px' }}>
