@@ -35,8 +35,8 @@ const CATEGORIES = {
         { label: '商品サイズ', key: 'size', type: 'select', optional: true },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
-        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' },
+        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '袖丈', key: 'sleeveLength', unit: 'cm' ,optional: true  }
       ]
     },
@@ -47,8 +47,8 @@ const CATEGORIES = {
         { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
-        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' },
+        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '袖丈', key: 'sleeveLength', unit: 'cm' }
       ]
     },
@@ -59,8 +59,8 @@ const CATEGORIES = {
         { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
-        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' },
+        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '袖丈', key: 'sleeveLength', unit: 'cm' ,optional: true  }
       ]
     },
@@ -71,9 +71,8 @@ const CATEGORIES = {
         { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: 'ウエスト', key: 'waist', unit: 'cm' },
         { label: '股上', key: 'rise', unit: 'cm' },
-        { label: '股下', key: 'inseam', unit: 'cm' },
-        { label: '総丈', key: 'totalLength', unit: 'cm' ,optional: true  },
         { label: 'わたり幅', key: 'thighWidth', unit: 'cm' },
+        { label: '股下', key: 'inseam', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' }
       ]
     },
@@ -105,8 +104,8 @@ const CATEGORIES = {
         { label: '商品サイズ', key: 'size', type: 'select' ,optional: true  },  // typeを追加
         { label: '肩幅', key: 'shoulderWidth', unit: 'cm' },
         { label: '身幅', key: 'chestWidth', unit: 'cm' },
-        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '裾幅', key: 'hemWidth', unit: 'cm' },
+        { label: '着丈', key: 'length', unit: 'cm' },
         { label: '袖丈', key: 'sleeveLength', unit: 'cm' ,optional: true  },
         { label: 'ボトムスウエスト', key: 'waist', unit: 'cm' },
         { label: 'ボトムス総丈', key: 'totalLength', unit: 'cm' }
