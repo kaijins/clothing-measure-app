@@ -266,10 +266,9 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
   const saveToSpreadsheet = async (data: any) => {
     try {
       setIsSaving(true);
-      console.log('Saving data:', {  // デバッグ用
+      console.log('Saving data:', {
         category: currentCategory,
-        measurements: data,
-        isEditMode
+        measurements: data
       });
       
       const response = await fetch(GAS_URL, {
@@ -280,8 +279,7 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
         },
         body: JSON.stringify({
           category: currentCategory,
-          measurements: data,
-          isEditMode
+          measurements: data
         })
       });
   
@@ -298,7 +296,7 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
   const handleNext = async () => {
     if (!inputValue && !currentCategory && !showCategorySelect) return;
   
-    console.log('handleNext called with:', {  // 追加
+    console.log('handleNext called with:', {
       inputValue,
       currentCategory,
       currentStepIndex,
@@ -306,41 +304,18 @@ const BreadcrumbNav = React.memo(({ steps, currentIndex, measurements, currentCa
     });
   
     if (!currentCategory && !showCategorySelect) {
-        // handleNext内の編集モード部分を以下のように修正
-if (isEditMode) {
-    try {
-        // handleNext内の編集モード部分で
-        console.log(`送信ID: ${inputValue}, 型: ${typeof inputValue}`);
-        console.log(`データ取得開始: ID = ${inputValue}`);
-        const response = await fetch(`${GAS_URL}?id=${inputValue}`);
-        console.log('レスポンス:', response);
-        const data = await response.json();
-        console.log('取得データ:', data);
-        
-        if (data.success && data.measurements) {
-            setMeasurements({ id: inputValue, ...data.measurements });
-        } else {
-            setError('指定されたIDのデータが見つかりませんでした');
-            return;
-        }
-    } catch (error) {
-        console.error('エラー詳細:', error);
-        setError('データの取得に失敗しました');
-        return;
+      // IDを入力してカテゴリ選択画面へ
+      setMeasurements({ id: inputValue });
+      setShowCategorySelect(true);
+      setInputValue('');
+      return;
     }
-} else {
-            setMeasurements({ id: inputValue })
-        }
-        setShowCategorySelect(true)
-        setInputValue('')
-        return
-    }
-
+  
     const category = CATEGORIES[currentCategory!];
     const currentStep = category.steps[currentStepIndex];
     
     if (currentStep?.type === 'select') {
-      console.log('Size step detected:', {  // 追加
+      console.log('Size step detected:', {
         step: currentStep,
         inputValue,
         measurements
@@ -350,7 +325,7 @@ if (isEditMode) {
         ...measurements,
         size: inputValue
       };
-      console.log('Updated measurements with size:', updatedMeasurements);  // デバッグ用
+      console.log('Updated measurements with size:', updatedMeasurements);
       setMeasurements(updatedMeasurements);
   
       if (currentStepIndex === category.steps.length - 1) {
@@ -382,6 +357,7 @@ if (isEditMode) {
       }
     }
   };
+  
 
   const getCurrentStep = () => {
     if (!currentCategory) {
@@ -512,19 +488,6 @@ return (
     </h1>
   )}
 </div>
-
-        {/* 編集モード切り替えボタン（IDの入力画面の時のみ表示） */}
-        {!currentCategory && !showCategorySelect && (
-          <button
-            onClick={() => setIsEditMode(!isEditMode)}
-            className={`mb-4 w-full p-3 rounded-xl text-sm font-medium transition-colors
-              ${isEditMode 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
-          >
-            {isEditMode ? '編集モード：ON' : '編集モード：OFF'}
-          </button>
-        )}
 
         {/* エラーメッセージ */}
         {error && (
